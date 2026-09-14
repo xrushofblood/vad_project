@@ -1,0 +1,13 @@
+# Python environments
+venv/
+env/
+__pycache__/
+*.py[cod]
+
+# Project specific folders (Do NOT track heavy files)
+data/
+models/
+logs/
+
+# Jupyter Notebooks checkpoints
+.ipynb_checkpoints
