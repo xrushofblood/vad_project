@@ -18,6 +18,14 @@ def batch_extract(source_dir, output_dir, fps_target=1):
 
     for video_path in videos:
         video_name = os.path.basename(video_path).split('.')[0]
+        
+        # --- NEW: Check if frames for this video already exist ---
+        existing_frames = glob.glob(os.path.join(output_dir, f"{video_name}_f*.jpg"))
+        if existing_frames:
+            print(f"Skipping '{video_name}': frames already extracted.")
+            continue
+        # ---------------------------------------------------------
+        
         vidcap = cv2.VideoCapture(video_path)
         fps_source = round(vidcap.get(cv2.CAP_PROP_FPS))
         
@@ -25,7 +33,7 @@ def batch_extract(source_dir, output_dir, fps_target=1):
         interval = max(1, fps_source // fps_target)
         
         count = 0
-        saved = 0  # Fixed typo (was 0z)
+        saved = 0
         
         while True:
             success, image = vidcap.read()
@@ -49,7 +57,7 @@ project_root = os.path.join(script_dir, "..", "..")
 raw_videos_dir = os.path.join(project_root, "data", "raw_videos")
 extracted_frames_dir = os.path.join(project_root, "data", "extracted_frames")
 
-# Execute extraction for the VLM grounding task
+# Execute extraction
 batch_extract(raw_videos_dir, extracted_frames_dir)
 
 print("\nSuccess!")
