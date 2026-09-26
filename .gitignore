@@ -13,4 +13,4 @@ outputs/
 # Jupyter Notebooks checkpoints
 .ipynb_checkpoints
 
-/archive
+notebooks/_archive/
