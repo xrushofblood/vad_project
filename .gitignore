@@ -15,3 +15,5 @@ outputs/
 
 notebooks/_archive/
 archive/
+
+notebooks/*_no_outputs.ipynb

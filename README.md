@@ -38,6 +38,7 @@ vad-project/
 ├── logs/                           # Not tracked
 ├── src/
 │   └── perception/
+|   └── utils/
 │       └── extract_frames.py       # Frame extraction from the videos
 ├── archive/                        # Not tracked
 ├── requirements.txt
