@@ -38,6 +38,12 @@ vad-project/
 ├── logs/                           # Not tracked
 ├── src/
 │   └── perception/
+        └── __init__.py
+        └── classes.py
+        └── features.py
+        └── labels.py
+        └── prototypes.py
+        └── visualization.py
 |   └── utils/
 │       └── extract_frames.py       # Frame extraction from the videos
 ├── archive/                        # Not tracked
