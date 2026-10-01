@@ -7,7 +7,7 @@ The goal is to monitor an assembly procedure recorded with an XR headset (egocen
 
 | Phase | Task | Status |
 |---|---|---|
-| 1. Perception | Recognize the pieces in each frame | Baseline done (`notebooks/phase_1_perception.ipynb`) |
+| 1. Perception | Recognize the pieces in each frame | v1 done (`notebooks/phase_1_perception.ipynb`); support-set study in progress (`notebooks/phase_1_support_set_study.ipynb`) |
 | 2. State tracking | Track which pieces are mounted and in which order | Planned |
 | 3. Reasoning | Check the sequence against the assembly rules (`configs/dependency_graph.json`) with an LLM (Bonsai-27B) | Planned |
 
@@ -16,6 +16,8 @@ The goal is to monitor an assembly procedure recorded with an XR headset (egocen
 No model is trained. C-RADIOv4-SO400M is used as a frozen feature extractor: each frame becomes a grid of 16x16 patches, each described by a 1152-dimensional vector. Each class (10 pieces, background and hand) is represented by a prototype, the normalized mean of its annotated patches in a few reference frames. Each patch of a new frame takes the class of the most similar prototype (cosine similarity), with a margin that rejects uncertain pieces to background. In the video pipeline, perception runs only when the scene is still.
 
 The notebook documents every design choice, with observations, references and sensitivity checks (Appendix A). Its last section lists the current limitations and next steps.
+
+Evaluation protocol. Frames are split by recording: reference frames come from sequences never used for evaluation. Validation (`assembly_2`, `1_disassembled_controlled_caos`, 8 annotated frames) is used to inspect errors and choose the method. Test (`assembly_1`) is held out until the end of all studies; it was inspected once, in the qualitative evaluation of `v1-baseline`. The pipeline notebook reads only validation frames.
 
 ## Repository structure
 
@@ -30,25 +32,26 @@ vad-project/
 │   ├── c_radio_weights/            # C-RADIOv4-SO400M (weights and model code, Hugging Face)
 │   └── bonsai_27b_1bit/            # Bonsai-27B, 1-bit quantized (reasoning phase)
 ├── notebooks/
-│   ├── phase_1_perception.ipynb    # Phase 1 pipeline
-│   └── _archive/                   # Not tracked
-├── outputs/                        # Not tracked: prototypes, similarities, figures, videos
+│   ├── phase_1_perception.ipynb          # Phase 1 pipeline
+│   ├── phase_1_support_set_study.ipynb   # Which and how many reference frames
+│   └── _archive/                         # Not tracked
+├── outputs/                              # Not tracked: prototypes, similarities, figures, videos
 │   ├── phase_1_perception/
-│   └── baseline/                   # Figures of the v1-baseline version, for comparisons
-├── logs/                           # Not tracked
+│   ├── phase_1_support_set_study/
+│   └── baseline/                         # v1-baseline prototypes and similarities, for regression checks
 ├── src/
-│   └── perception/
-        └── __init__.py
-        └── classes.py
-        └── features.py
-        └── labels.py
-        └── prototypes.py
-        └── visualization.py
-|   └── utils/
-│       └── extract_frames.py       # Frame extraction from the videos
+│   ├── perception/                       # Shared code, imported by every Phase 1 notebook
+│   │   ├── __init__.py
+│   │   ├── classes.py                    # Class list and colors
+│   │   ├── features.py                   # C-RADIOv4 feature extraction
+│   │   ├── labels.py                     # labelme polygons -> patch labels
+│   │   ├── prototypes.py                 # Prototypes and classification
+│   │   ├── metrics.py                    # Confusion matrix, per-class IoU, mIoU
+│   │   └── visualization.py              # Label maps and overlays
+│   └── utils/
+│       └── extract_frames.py             # Frame extraction from the videos
 ├── archive/                        # Not tracked
 ├── requirements.txt
-├── trials_and_errors_log.md        # Experiment diary: what was tried, what failed, what was kept
 └── README.md
 ```
 
@@ -76,7 +79,7 @@ The Mr Potato Head dataset was recorded for this project with an XR headset (102
 Frames are extracted with:
 
 ```bash
-python src/perception/extract_frames.py
+python src/utils/extract_frames.py
 ```
 
 The script reads every `.mp4` in `data/raw_videos/` and saves **one frame per second** in `data/extracted_frames/`, named `<video>_f<index>.jpg`: the index is the second of the video (e.g. `assembly_1_f0016.jpg` is at 16 s). Videos whose frames already exist are skipped. The prefix before `_f` identifies the recording, which is what the notebook uses to split reference and test frames by sequence.
@@ -87,13 +90,18 @@ Reference frames are annotated with [labelme](https://github.com/wkentaro/labelm
 
 Open `notebooks/phase_1_perception.ipynb` and run all cells (Restart & Run All). The notebook reads data from `data/` and the model from `models/`, and writes prototypes, test similarities, figures and the annotated video to `outputs/phase_1_perception/`.
 
+The support-set study (`notebooks/phase_1_support_set_study.ipynb`) uses the same shared code and writes to `outputs/phase_1_support_set_study/`. It never reads test frames.
+
+
 ## Versions
 
 - `v1-baseline`: first clean, documented version of the Phase 1 pipeline.
+- `v1.1-shared-module`: shared code moved to `src/perception/`, verified bitwise identical to `v1-baseline`.
 
 ## Next steps
 
-- Annotate the 17 test frames, for a quantitative evaluation (per-class IoU).
-- Support-set study: which and how many reference frames.
-- Margin study: the background margin and a confidence criterion between the first and second class.
+- Support-set study (in progress): which and how many reference frames, measured on the annotated validation frames.
+- Margin study: the background margin.
+- Final evaluation on the test sequence (`assembly_1`), once, after all studies.
 - Continuous perception (latency and resolution).
+- Phase 2: state tracking.
