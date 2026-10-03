@@ -68,7 +68,7 @@ def rasterize_annotation(json_path, use_labels, target_size):
 def patch_label_grid(pixel_map, patch_size, min_coverage):
     """
     Assign one label per patch from the pixel map.
-    - piece label : the most frequent class is a piece and covers >= min_coverage of the patch
+    - class label : the most frequent class is not background (a piece or hand) and covers >= min_coverage of the patch
     - background  : the patch is 100% unannotated
     - ignored     : everything else (mixed boundary patches, ignored polygons)
     Returns the label grid (h_patches, w_patches) and the per-class pixel fractions.

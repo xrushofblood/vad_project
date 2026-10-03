@@ -18,8 +18,8 @@ def build_prototypes(reference_frames, class_names=CLASS_NAMES):
       2. all normalized patches of the class are pooled across ALL reference frames,
          each patch with the same weight (patch-weighted mean);
       3. their mean is L2-normalized again.
-    This is the maximum-likelihood mean direction of a von Mises-Fisher distribution,
-    the natural prototype when classification uses cosine similarity.
+    This is the maximum-likelihood mean direction of a von Mises-Fisher distribution
+    (Banerjee et al. 2005, Sect. 2.2).
     Ignored patches (IGNORE_ID) never enter any prototype.
 
     Each reference frame is a dict with "features" (h, w, D) and "patch_labels" (h, w).

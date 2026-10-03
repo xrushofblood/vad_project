@@ -2,6 +2,8 @@
 Class definitions shared by all Phase 1 notebooks (single source of truth).
 
 The order of CLASS_NAMES fixes the class indices and the color of each class in every plot.
+
+The order is arbitrary, except that background must be first (index 0).
 """
 import matplotlib.colors as mcolors
 

@@ -7,7 +7,7 @@ The goal is to monitor an assembly procedure recorded with an XR headset (egocen
 
 | Phase | Task | Status |
 |---|---|---|
-| 1. Perception | Recognize the pieces in each frame | Pipeline (`notebooks/phase_1_perception.ipynb`) and support-set study (`notebooks/phase_1_support_set_study.ipynb`) done; margin study next |
+| 1. Perception | Recognize the pieces in each frame | Pipeline (`notebooks/phase_1_perception.ipynb`) and support-set study (`notebooks/phase_1_support_set_study.ipynb`) done and reviewed (markdowns rewritten, references verified, diagnostic analyses in the study, Section 7); resolution study next |
 | 2. State tracking | Track which pieces are mounted and in which order | Planned |
 | 3. Reasoning | Check the sequence against the assembly rules (`configs/dependency_graph.json`) with an LLM (Bonsai-27B) | Planned |
 
@@ -15,9 +15,12 @@ The goal is to monitor an assembly procedure recorded with an XR headset (egocen
 
 No model is trained. C-RADIOv4-SO400M is used as a frozen feature extractor: each frame becomes a grid of 16x16 patches, each described by a 1152-dimensional vector. Each class (10 pieces, background and hand) is represented by a prototype, the normalized mean of its annotated patches in 8 reference frames, chosen in the support-set study. Each patch of a new frame takes the class of the most similar prototype (cosine similarity), with a margin that rejects uncertain pieces to background. In the video pipeline, perception runs only when the scene is still.
 
+Perception works on mounted pieces, pieces held in hand and loose pieces seen from the front. Its known limits are the identity of the two arms, the empty mouth slot predicted as mouth, and the loose mouth seen from the side. The support-set study shows that they come from the method (one prototype per class, patch-level decisions) rather than from the choice of reference frames or from the annotations.
+
 The notebook documents every design choice, with observations, references and sensitivity checks (Appendix A). Its last section lists the current limitations and next steps.
 
 Evaluation protocol. Frames are split by recording: reference frames come from sequences never used for evaluation. Validation (`assembly_2`, `1_disassembled_controlled_caos`, 8 annotated frames) is used to inspect errors and choose the method. Test (`assembly_1`) is held out until the end of all studies; it was inspected once, in the qualitative evaluation of `v1-baseline`. The pipeline notebook reads only validation frames.
+The v1-baseline file outputs/baseline/test_similarities_v1-baseline.npz also contains the test frames from that inspection; the support-set study loads only its validation entries.
 
 ## Repository structure
 
@@ -67,9 +70,11 @@ venv\Scripts\activate            # Windows (Linux/macOS: source venv/bin/activat
 pip install -r requirements.txt
 ```
 
+`requirements.txt` installs PyTorch with CUDA 12.1 from the PyTorch package index (first line of the file). pywinpty is installed only on Windows.
+
 ### Models
 
-- **C-RADIOv4-SO400M**: [nvidia/C-RADIOv4-SO400M](https://huggingface.co/nvidia/C-RADIOv4-SO400M), downloaded into `models/c_radio_weights/`. The model is loaded with `trust_remote_code=True`: the model code comes with the weights.
+- **C-RADIOv4-SO400M**: [nvidia/C-RADIOv4-SO400M](https://huggingface.co/nvidia/C-RADIOv4-SO400M), commit c0457f5, downloaded into `models/c_radio_weights/`. The model is loaded with `trust_remote_code=True`: the model code comes with the weights.
 - **Bonsai-27B (1-bit, GGUF)**: [prism-ml/Bonsai-27B-gguf](https://huggingface.co/prism-ml/Bonsai-27B-gguf), downloaded into `models/bonsai_27b_1bit/`.
 
 ### Data
@@ -92,7 +97,7 @@ Reference and validation frames are annotated with [labelme](https://github.com/
 
 Open `notebooks/phase_1_perception.ipynb` and run all cells (Restart & Run All). The notebook reads data from `data/` and the model from `models/`, and writes prototypes, validation similarities, figures and the annotated video to `outputs/phase_1_perception/`.
 
-The support-set study (`notebooks/phase_1_support_set_study.ipynb`) uses the same shared code and writes to `outputs/phase_1_support_set_study/`. It never reads test frames.
+The support-set study (`notebooks/phase_1_support_set_study.ipynb`) uses the same shared code and writes to `outputs/phase_1_support_set_study/`. It never reads test frames. Section 7 adds diagnostic analyses of the selected support set (per-class intervals, errors towards base, one annotation removed at a time); they do not change the selection.
 
 
 ## Versions
@@ -100,10 +105,14 @@ The support-set study (`notebooks/phase_1_support_set_study.ipynb`) uses the sam
 - `v1-baseline`: first clean, documented version of the Phase 1 pipeline.
 - `v1.1-shared-module`: shared code moved to `src/perception/`, verified bitwise identical to `v1-baseline`.
 - `v1.2-support-set`: support set extended to 8 frames (5_assembled_f0019 added), as selected in the support-set study.
+- `v1.3-review`: notebooks reviewed (markdowns rewritten, references verified against the papers), diagnostic analyses added to the support-set study (Section 7). The pipeline outputs are unchanged.
 
 ## Next steps
 
+- Resolution study: 1024 vs 512, recognition and latency.
 - Margin study: the background margin, measured on the annotated validation frames.
-- Final evaluation on the test sequence (`assembly_1`), once, after all studies.
-- Continuous perception (latency and resolution).
+- Final evaluation on the test sequence (`assembly_1`), once, after the last change to perception.
+- Continuous perception (latency).
 - Phase 2: state tracking.
+
+Open questions: several prototypes per class, one per appearance (mounted and loose mouth, the two arms); arm identity decided at object level, from the hand and the shape of the arm; the empty mouth slot handled by the state of the assembly.
