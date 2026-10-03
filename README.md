@@ -7,13 +7,13 @@ The goal is to monitor an assembly procedure recorded with an XR headset (egocen
 
 | Phase | Task | Status |
 |---|---|---|
-| 1. Perception | Recognize the pieces in each frame | v1 done (`notebooks/phase_1_perception.ipynb`); support-set study in progress (`notebooks/phase_1_support_set_study.ipynb`) |
+| 1. Perception | Recognize the pieces in each frame | Pipeline (`notebooks/phase_1_perception.ipynb`) and support-set study (`notebooks/phase_1_support_set_study.ipynb`) done; margin study next |
 | 2. State tracking | Track which pieces are mounted and in which order | Planned |
 | 3. Reasoning | Check the sequence against the assembly rules (`configs/dependency_graph.json`) with an LLM (Bonsai-27B) | Planned |
 
 ### Phase 1 — Perception
 
-No model is trained. C-RADIOv4-SO400M is used as a frozen feature extractor: each frame becomes a grid of 16x16 patches, each described by a 1152-dimensional vector. Each class (10 pieces, background and hand) is represented by a prototype, the normalized mean of its annotated patches in a few reference frames. Each patch of a new frame takes the class of the most similar prototype (cosine similarity), with a margin that rejects uncertain pieces to background. In the video pipeline, perception runs only when the scene is still.
+No model is trained. C-RADIOv4-SO400M is used as a frozen feature extractor: each frame becomes a grid of 16x16 patches, each described by a 1152-dimensional vector. Each class (10 pieces, background and hand) is represented by a prototype, the normalized mean of its annotated patches in 8 reference frames, chosen in the support-set study. Each patch of a new frame takes the class of the most similar prototype (cosine similarity), with a margin that rejects uncertain pieces to background. In the video pipeline, perception runs only when the scene is still.
 
 The notebook documents every design choice, with observations, references and sensitivity checks (Appendix A). Its last section lists the current limitations and next steps.
 
@@ -82,13 +82,15 @@ Frames are extracted with:
 python src/utils/extract_frames.py
 ```
 
-The script reads every `.mp4` in `data/raw_videos/` and saves **one frame per second** in `data/extracted_frames/`, named `<video>_f<index>.jpg`: the index is the second of the video (e.g. `assembly_1_f0016.jpg` is at 16 s). Videos whose frames already exist are skipped. The prefix before `_f` identifies the recording, which is what the notebook uses to split reference and test frames by sequence.
+The script reads every `.mp4` in `data/raw_videos/` and saves **one frame per second** in `data/extracted_frames/`, named `<video>_f<index>.jpg`: the index is the second of the video (e.g. `assembly_1_f0016.jpg` is at 16 s). Videos whose frames already exist are skipped. The prefix before `_f` identifies the recording, ...which is what the notebooks use to split reference, validation and test frames by sequence.
 
-Reference frames are annotated with [labelme](https://github.com/wkentaro/labelme); the `.json` annotations are saved next to the frames.
+`frame_1.jpeg` is an independent frame taken with an iPhone (wide angle), used only as a qualitative check of generalization to a different camera (pipeline, Section 10.4).
+
+Reference and validation frames are annotated with [labelme](https://github.com/wkentaro/labelme); the `.json` annotations are saved next to the frames.
 
 ## Usage
 
-Open `notebooks/phase_1_perception.ipynb` and run all cells (Restart & Run All). The notebook reads data from `data/` and the model from `models/`, and writes prototypes, test similarities, figures and the annotated video to `outputs/phase_1_perception/`.
+Open `notebooks/phase_1_perception.ipynb` and run all cells (Restart & Run All). The notebook reads data from `data/` and the model from `models/`, and writes prototypes, validation similarities, figures and the annotated video to `outputs/phase_1_perception/`.
 
 The support-set study (`notebooks/phase_1_support_set_study.ipynb`) uses the same shared code and writes to `outputs/phase_1_support_set_study/`. It never reads test frames.
 
@@ -97,11 +99,11 @@ The support-set study (`notebooks/phase_1_support_set_study.ipynb`) uses the sam
 
 - `v1-baseline`: first clean, documented version of the Phase 1 pipeline.
 - `v1.1-shared-module`: shared code moved to `src/perception/`, verified bitwise identical to `v1-baseline`.
+- `v1.2-support-set`: support set extended to 8 frames (5_assembled_f0019 added), as selected in the support-set study.
 
 ## Next steps
 
-- Support-set study (in progress): which and how many reference frames, measured on the annotated validation frames.
-- Margin study: the background margin.
+- Margin study: the background margin, measured on the annotated validation frames.
 - Final evaluation on the test sequence (`assembly_1`), once, after all studies.
 - Continuous perception (latency and resolution).
 - Phase 2: state tracking.
