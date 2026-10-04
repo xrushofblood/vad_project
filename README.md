@@ -7,13 +7,13 @@ The goal is to monitor an assembly procedure recorded with an XR headset (egocen
 
 | Phase | Task | Status |
 |---|---|---|
-| 1. Perception | Recognize the pieces in each frame | Pipeline (`notebooks/phase_1_perception.ipynb`) and support-set study (`notebooks/phase_1_support_set_study.ipynb`) done and reviewed (markdowns rewritten, references verified, diagnostic analyses in the study, Section 7); resolution study next |
+| 1. Perception | Recognize the pieces in each frame | Pipeline, support-set study and resolution study (`notebooks/phase_1_resolution_study.ipynb`: the input stays at 1024x1024) done and reviewed; continuous perception next |
 | 2. State tracking | Track which pieces are mounted and in which order | Planned |
 | 3. Reasoning | Check the sequence against the assembly rules (`configs/dependency_graph.json`) with an LLM (Bonsai-27B) | Planned |
 
 ### Phase 1 — Perception
 
-No model is trained. C-RADIOv4-SO400M is used as a frozen feature extractor: each frame becomes a grid of 16x16 patches, each described by a 1152-dimensional vector. Each class (10 pieces, background and hand) is represented by a prototype, the normalized mean of its annotated patches in 8 reference frames, chosen in the support-set study. Each patch of a new frame takes the class of the most similar prototype (cosine similarity), with a margin that rejects uncertain pieces to background. In the video pipeline, perception runs only when the scene is still.
+No model is trained. C-RADIOv4-SO400M is used as a frozen feature extractor: each frame becomes a grid of 16x16 patches, each described by a 1152-dimensional vector. Each class (10 pieces, background and hand) is represented by a prototype, the normalized mean of its annotated patches in 8 reference frames, chosen in the support-set study. Each patch of a new frame takes the class of the most similar prototype (cosine similarity), with a margin that rejects uncertain pieces to background. Frames enter the model at their native resolution, 1024x1024. The resolution study shows that at 512 the mIoU drops by about a quarter, mostly through recognition, while perception becomes about four times faster. In the video pipeline, perception runs only when the scene is still.
 
 Perception works on mounted pieces, pieces held in hand and loose pieces seen from the front. Its known limits are the identity of the two arms, the empty mouth slot predicted as mouth, and the loose mouth seen from the side. The support-set study shows that they come from the method (one prototype per class, patch-level decisions) rather than from the choice of reference frames or from the annotations.
 
@@ -37,10 +37,12 @@ vad-project/
 ├── notebooks/
 │   ├── phase_1_perception.ipynb          # Phase 1 pipeline
 │   ├── phase_1_support_set_study.ipynb   # Which and how many reference frames
+│   ├── phase_1_resolution_study.ipynb    # Input resolution: 1024 vs 512
 │   └── _archive/                         # Not tracked
 ├── outputs/                              # Not tracked: prototypes, similarities, figures, videos
 │   ├── phase_1_perception/
 │   ├── phase_1_support_set_study/
+│   ├── phase_1_resolution_study/
 │   └── baseline/                         # v1-baseline prototypes and similarities, for regression checks
 ├── src/
 │   ├── perception/                       # Shared code, imported by every Phase 1 notebook
@@ -87,7 +89,7 @@ Frames are extracted with:
 python src/utils/extract_frames.py
 ```
 
-The script reads every `.mp4` in `data/raw_videos/` and saves **one frame per second** in `data/extracted_frames/`, named `<video>_f<index>.jpg`: the index is the second of the video (e.g. `assembly_1_f0016.jpg` is at 16 s). Videos whose frames already exist are skipped. The prefix before `_f` identifies the recording, ...which is what the notebooks use to split reference, validation and test frames by sequence.
+The script reads every `.mp4` in `data/raw_videos/` and saves **one frame per second** in `data/extracted_frames/`, named `<video>_f<index>.jpg`. The script keeps one frame every round(fps) frames, so at 30 fps `<video>_f<index>.jpg` is frame index × 30 of the video, at about second `index` (e.g. `assembly_1_f0016.jpg` is frame 480, at about 16 s). Videos whose frames already exist are skipped. The prefix before `_f` identifies the recording, ...which is what the notebooks use to split reference, validation and test frames by sequence.
 
 `frame_1.jpeg` is an independent frame taken with an iPhone (wide angle), used only as a qualitative check of generalization to a different camera (pipeline, Section 10.4).
 
@@ -99,6 +101,8 @@ Open `notebooks/phase_1_perception.ipynb` and run all cells (Restart & Run All).
 
 The support-set study (`notebooks/phase_1_support_set_study.ipynb`) uses the same shared code and writes to `outputs/phase_1_support_set_study/`. It never reads test frames. Section 7 adds diagnostic analyses of the selected support set (per-class intervals, errors towards base, one annotation removed at a time); they do not change the selection.
 
+The resolution study (`notebooks/phase_1_resolution_study.ipynb`) uses the same shared code and writes to `outputs/phase_1_resolution_study/`. It never reads test frames. It compares 1024 and 512 on the validation frames (recognition and latency); 1024 is kept.
+
 
 ## Versions
 
@@ -106,13 +110,13 @@ The support-set study (`notebooks/phase_1_support_set_study.ipynb`) uses the sam
 - `v1.1-shared-module`: shared code moved to `src/perception/`, verified bitwise identical to `v1-baseline`.
 - `v1.2-support-set`: support set extended to 8 frames (5_assembled_f0019 added), as selected in the support-set study.
 - `v1.3-review`: notebooks reviewed (markdowns rewritten, references verified against the papers), diagnostic analyses added to the support-set study (Section 7). The pipeline outputs are unchanged.
+- `v1.4-resolution`: input resolution studied (1024 vs 512), 1024 kept. The feature extractor accepts an optional input resolution; arm merging, bootstrap and label upsampling moved to `src/perception/metrics.py`. Results at 1024 are bitwise unchanged.
 
 ## Next steps
 
-- Resolution study: 1024 vs 512, recognition and latency.
-- Margin study: the background margin, measured on the annotated validation frames.
-- Final evaluation on the test sequence (`assembly_1`), once, after the last change to perception.
-- Continuous perception (latency).
+- Continuous perception on `assembly_2` at 1024, offline, in a separate Phase 1 notebook.
+- Decide whether to return to perception: several prototypes per class, margin study.
 - Phase 2: state tracking.
+- Final evaluation on the test sequence (`assembly_1`), once, after the last change to perception.
 
 Open questions: several prototypes per class, one per appearance (mounted and loose mouth, the two arms); arm identity decided at object level, from the hand and the shape of the arm; the empty mouth slot handled by the state of the assembly.
