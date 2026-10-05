@@ -104,3 +104,67 @@ def classify_patches(features, prototype_matrix, margin, background_id=BACKGROUN
     """
     similarities = l2_normalize(features) @ prototype_matrix.T
     return assign_labels(similarities, margin, background_id), similarities
+
+
+# --- Multi-prototype study: several prototypes per class ---------------------------------------
+
+def group_prototypes(reference_frames, class_names=CLASS_NAMES):
+    """
+    One prototype per (class, group): the normalized mean of the patches of that class and group, pooled over
+    all reference frames exactly as in build_prototypes (same frame order, patch-weighted mean, L2 normalization).
+    With a single group per class the result equals build_prototypes.
+
+    Each reference frame is a dict with "features" (h, w, D), "patch_labels" (h, w) and "patch_groups" (h, w),
+    an integer grid giving the group of each patch (e.g. 0 = loose, 1 = mounted).
+    Returns the (P, D) prototype matrix, the class index and the group of each row, and the patch count of each row.
+    """
+    pooled = {}
+    for ref in reference_frames:
+        features = l2_normalize(ref["features"])
+        for class_id in range(len(class_names)):
+            in_class = ref["patch_labels"] == class_id
+            for group in np.unique(ref["patch_groups"][in_class]):
+                mask = in_class & (ref["patch_groups"] == group)
+                pooled.setdefault((class_id, int(group)), []).append(features[mask])
+    keys = sorted(pooled)
+    vectors = [np.concatenate(pooled[key]) for key in keys]
+    prototypes = np.stack([l2_normalize(v.mean(axis=0)) for v in vectors])
+    return (prototypes, np.array([k[0] for k in keys]), np.array([k[1] for k in keys]),
+            np.array([len(v) for v in vectors]))
+
+
+def patch_prototypes(reference_frames, class_names=CLASS_NAMES):
+    """
+    Every labelled patch of the reference frames as a prototype (nearest-neighbour variant).
+    Ignored patches (IGNORE_ID) are never used.
+    Returns the (P, D) matrix of unit vectors and the class index of each row.
+    """
+    vectors, owners = [], []
+    for ref in reference_frames:
+        features = l2_normalize(ref["features"])
+        for class_id in range(len(class_names)):
+            mask = ref["patch_labels"] == class_id
+            if mask.any():
+                vectors.append(features[mask])
+                owners.append(np.full(int(mask.sum()), class_id))
+    return np.concatenate(vectors), np.concatenate(owners)
+
+
+def class_similarities(features, prototypes, owners, n_classes=len(CLASS_NAMES), chunk=4096):
+    """
+    Similarity of each patch with each class: the highest cosine similarity among the prototypes of the class.
+    features (h, w, D); prototypes (P, D) unit vectors; owners (P,) class index of each prototype.
+    Prototypes are processed in chunks of `chunk` rows to bound memory; this does not change the result.
+    With one prototype per class, in class order, the result equals the similarities of classify_patches.
+    Labels then come from assign_labels, with the same background margin as the single-prototype method.
+    """
+    x = l2_normalize(features)
+    out = np.full(features.shape[:-1] + (n_classes,), -np.inf, dtype=np.float32)
+    for start in range(0, len(prototypes), chunk):
+        similarities = x @ prototypes[start:start + chunk].T
+        chunk_owners = owners[start:start + chunk]
+        for class_id in np.unique(chunk_owners):
+            np.maximum(out[..., class_id], similarities[..., chunk_owners == class_id].max(axis=-1),
+                       out=out[..., class_id])
+    assert np.isfinite(out).all(), "Every class needs at least one prototype"
+    return out
