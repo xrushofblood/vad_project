@@ -168,3 +168,29 @@ def class_similarities(features, prototypes, owners, n_classes=len(CLASS_NAMES),
                        out=out[..., class_id])
     assert np.isfinite(out).all(), "Every class needs at least one prototype"
     return out
+
+
+def sort_by_class(prototypes, owners):
+    """Prototypes reordered so that each class occupies consecutive rows (the maxima per class do not change)."""
+    order = np.argsort(owners, kind="stable")
+    return prototypes[order], owners[order]
+
+
+def class_similarities_gpu(features, prototypes, owners, n_classes=len(CLASS_NAMES)):
+    """
+    Same computation as class_similarities, on the GPU with torch (float32).
+    prototypes (P, D) and owners (P,) must be torch tensors already on the GPU, sorted by class
+    (sort_by_class), moved once with torch.as_tensor(..., device="cuda").
+    Each class then occupies consecutive columns of the similarity matrix, and its maximum is a single reduction.
+    Results equal those of class_similarities up to floating-point rounding.
+    """
+    import torch
+
+    counts = torch.bincount(owners, minlength=n_classes)
+    assert bool((counts > 0).all()), "Every class needs at least one prototype"
+    assert bool((owners[1:] >= owners[:-1]).all()), "Prototypes must be sorted by class (sort_by_class)"
+    x = torch.as_tensor(l2_normalize(features), device=prototypes.device)
+    flat = x.reshape(-1, x.shape[-1])
+    similarities = flat @ prototypes.T                                        # (patches, P)
+    out = torch.stack([block.amax(dim=1) for block in similarities.split(counts.tolist(), dim=1)], dim=1)
+    return out.reshape(*features.shape[:-1], n_classes).cpu().numpy()
