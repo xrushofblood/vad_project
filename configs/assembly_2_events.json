@@ -1,0 +1,28 @@
+{
+  "video": "assembly_2",
+  "annotation": "Annotated on the raw video before any perception output was seen. Frame indices at about 30 fps. pick = first frame the piece leaves the table; mount = first frame the piece is in its final position; hands_off = hands leave the figure; tol = annotator's estimate of the ambiguity of the event, in frames. Sides are in image coordinates.",
+  "events": [
+    {"piece": "base",      "pick": 120,  "mount": 132,  "hands_off": 168,  "tol": 3, "note": "placed at the work position"},
+    {"piece": "body",      "pick": 310,  "mount": 336,  "hands_off": 425,  "tol": 3, "note": "placed on the base"},
+    {"piece": "mouth",     "pick": 543,  "mount": 588,  "hands_off": 640,  "tol": 4},
+    {"piece": "moustache", "pick": 787,  "mount": 1000, "hands_off": 1030, "tol": 4, "note": "joined to the nose in hand"},
+    {"piece": "nose",      "pick": 849,  "mount": 1000, "hands_off": 1030, "tol": 4, "note": "joined to the moustache in hand"},
+    {"piece": "eyes",      "pick": 1270, "mount": 1288, "hands_off": 1328, "tol": 6},
+    {"piece": "ear",       "pick": 1482, "mount": 1518, "hands_off": 1558, "tol": 6, "side": "image right"},
+    {"piece": "ear",       "pick": 1574, "mount": 1616, "hands_off": 1652, "tol": 6, "side": "image left"},
+    {"piece": "arm_1",     "pick": 1770, "mount": 1802, "hands_off": 1875, "tol": 8, "side": "image right"},
+    {"piece": "arm_2",     "pick": 1888, "mount": 1932, "hands_off": 2005, "tol": 8, "side": "image left"},
+    {"piece": "hat",       "pick": 2085, "mount": 2174, "hands_off": 2250, "tol": 4}
+  ],
+  "notes": [
+    {"frames": [0, 90],      "what": "all pieces loose; base partly outside the frame until about 84"},
+    {"frames": [24, 32],     "what": "dark object (headset controller) at the bottom of the frame"},
+    {"frames": [743, 767],   "what": "hand touches the nose without lifting it"},
+    {"frames": [890, 930],   "what": "nose and moustache joined in hand (fully joined at about 930)"},
+    {"frames": [1146, 1146], "what": "hand passes over the arms without lifting them"},
+    {"frames": [1197, 1220], "what": "one ear picked and put back on the table, not mounted"},
+    {"frames": [1440, 1440], "what": "hand touches the arms without lifting them"},
+    {"frames": [2255, 2360], "what": "final pause: figure complete, no hands"},
+    {"frames": [2360, 2444], "what": "head turns to a monitor and keyboard; headset controller in hand from about 2396"}
+  ]
+}
