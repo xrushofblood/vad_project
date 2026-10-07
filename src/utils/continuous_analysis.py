@@ -11,7 +11,7 @@ All parameters are provisional values chosen to look at the data, not justified 
   windows (frames)                see the constants below
 They should be revisited (and justified) before any formal continuous-perception study.
 
-Usage (from the project root):
+Usage (from any folder; the event log is found from the location of this file):
   python continuous_analysis.py outputs/scratch/assembly_2_continuous_labels.npz \
                                 outputs/scratch/assembly_2_continuous_labels_V2.npz
 """
@@ -23,7 +23,8 @@ import numpy as np
 import pandas as pd
 from scipy import ndimage
 
-EVENTS_PATH = Path("configs/assembly_2_events.json")
+PROJECT_ROOT = Path(__file__).resolve().parents[2]      # this file is src/utils/continuous_analysis.py
+EVENTS_PATH = PROJECT_ROOT / "configs" / "assembly_2_events.json"
 
 BODY_ZONE_DILATION = 3        # patches: predicted body dilated by this many patches = "on the body" zone
 PRESENCE_MIN = 3              # patches: minimum count for a piece to be "present"
