@@ -76,16 +76,29 @@ def load_prototypes(path):
 
 def assign_labels(similarities, margin, background_id=BACKGROUND_ID):
     """
-    Labels from precomputed cosine similarities (h, w, K): nearest prototype, then background
-    rejection. If the winner is not background, but its similarity exceeds the background
-    similarity by less than `margin`, the patch is assigned to background.
-    The margin only decides piece vs background, never between two pieces.
+    Labels from precomputed cosine similarities (h, w, K): nearest prototype, then the background margin.
+
+    Let d = (similarity of the best class other than background) - (similarity of background).
+    The patch takes that class if d >= margin, and background otherwise. The margin is a bias on the
+    background class: it only decides between background and the other classes, never between two pieces.
+      margin > 0: in doubt, background (a piece winning by less than the margin is rejected);
+      margin = 0: each patch takes its most similar class;
+      margin < 0: in doubt, the other class (background winning by less than |margin| is overruled).
+    For margin >= 0 the code is the one of v1.5, so the labels are unchanged. At margin 0 an exact tie
+    between background and another class goes to background (argmax takes the first index).
     Separate from classify_patches so that saved similarities can be relabelled without C-RADIO.
     """
     labels = similarities.argmax(axis=-1)
-    best = similarities.max(axis=-1)
-    rejected = (labels != background_id) & (best - similarities[..., background_id] < margin)
-    return np.where(rejected, background_id, labels)
+    if margin >= 0:
+        best = similarities.max(axis=-1)
+        rejected = (labels != background_id) & (best - similarities[..., background_id] < margin)
+        return np.where(rejected, background_id, labels)
+    others = similarities.copy()
+    others[..., background_id] = -np.inf                                    # best class other than background
+    best_other = others.argmax(axis=-1)
+    d = others.max(axis=-1) - similarities[..., background_id]
+    promoted = (labels == background_id) & (d >= margin)
+    return np.where(promoted, best_other, labels)
 
 
 def classify_patches(features, prototype_matrix, margin, background_id=BACKGROUND_ID):
