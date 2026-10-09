@@ -1,28 +1,180 @@
 {
   "video": "assembly_2",
-  "annotation": "Annotated on the raw video before any perception output was seen. Frame indices at about 30 fps. pick = first frame the piece leaves the table; mount = first frame the piece is in its final position; hands_off = hands leave the figure; tol = annotator's estimate of the ambiguity of the event, in frames. Sides are in image coordinates.",
+  "annotation": "Annotated on the raw video. Frame indices at about 30 fps; extracted frame fNNNN is video frame 30 * NNNN. touch = first frame the hand touches the piece, in the contact that ends with the piece lifted; pick = first frame the piece leaves the table; insert = first frame the piece touches the part it is mounted on (for the base: first frame it rests at the work position); mount = the piece reaches its slot, as first annotated: for some pieces this is the first contact (arm_2), for others the piece pushed in (mouth, nose and moustache), so insert is the uniform definition; hands_off = hands leave the figure; tol = estimate of the ambiguity of pick and mount, in frames. Sides are in image coordinates.",
+  "revision": "2026-10-09: checked event by event on the raw video, after perception outputs on this video had been seen. Added touch and insert (precision about 2-4 frames), corrected the notes on the nose touch and on the ear put back, made the definition of mount explicit. pick, mount and hands_off unchanged.",
   "events": [
-    {"piece": "base",      "pick": 120,  "mount": 132,  "hands_off": 168,  "tol": 3, "note": "placed at the work position"},
-    {"piece": "body",      "pick": 310,  "mount": 336,  "hands_off": 425,  "tol": 3, "note": "placed on the base"},
-    {"piece": "mouth",     "pick": 543,  "mount": 588,  "hands_off": 640,  "tol": 4},
-    {"piece": "moustache", "pick": 787,  "mount": 1000, "hands_off": 1030, "tol": 4, "note": "joined to the nose in hand"},
-    {"piece": "nose",      "pick": 849,  "mount": 1000, "hands_off": 1030, "tol": 4, "note": "joined to the moustache in hand"},
-    {"piece": "eyes",      "pick": 1270, "mount": 1288, "hands_off": 1328, "tol": 6},
-    {"piece": "ear",       "pick": 1482, "mount": 1518, "hands_off": 1558, "tol": 6, "side": "image right"},
-    {"piece": "ear",       "pick": 1574, "mount": 1616, "hands_off": 1652, "tol": 6, "side": "image left"},
-    {"piece": "arm_1",     "pick": 1770, "mount": 1802, "hands_off": 1875, "tol": 8, "side": "image right"},
-    {"piece": "arm_2",     "pick": 1888, "mount": 1932, "hands_off": 2005, "tol": 8, "side": "image left"},
-    {"piece": "hat",       "pick": 2085, "mount": 2174, "hands_off": 2250, "tol": 4}
+    {
+      "piece": "base",
+      "touch": 110,
+      "pick": 120,
+      "insert": 132,
+      "mount": 132,
+      "hands_off": 168,
+      "tol": 3,
+      "note": "placed at the work position"
+    },
+    {
+      "piece": "body",
+      "touch": 287,
+      "pick": 310,
+      "insert": 334,
+      "mount": 336,
+      "hands_off": 425,
+      "tol": 3,
+      "note": "placed on the base; the hand is mostly outside the frame at touch"
+    },
+    {
+      "piece": "mouth",
+      "touch": 538,
+      "pick": 543,
+      "insert": 568,
+      "mount": 588,
+      "hands_off": 640,
+      "tol": 4
+    },
+    {
+      "piece": "moustache",
+      "touch": 774,
+      "pick": 787,
+      "insert": 987,
+      "mount": 1000,
+      "hands_off": 1030,
+      "tol": 4,
+      "note": "joined to the nose in hand"
+    },
+    {
+      "piece": "nose",
+      "touch": 832,
+      "pick": 849,
+      "insert": 987,
+      "mount": 1000,
+      "hands_off": 1030,
+      "tol": 4,
+      "note": "joined to the moustache in hand"
+    },
+    {
+      "piece": "eyes",
+      "touch": 1256,
+      "pick": 1270,
+      "insert": 1281,
+      "mount": 1288,
+      "hands_off": 1328,
+      "tol": 6
+    },
+    {
+      "piece": "ear",
+      "touch": 1480,
+      "pick": 1482,
+      "insert": 1514,
+      "mount": 1518,
+      "hands_off": 1558,
+      "tol": 6,
+      "side": "image right"
+    },
+    {
+      "piece": "ear",
+      "touch": 1564,
+      "pick": 1574,
+      "insert": 1606,
+      "mount": 1616,
+      "hands_off": 1652,
+      "tol": 6,
+      "side": "image left"
+    },
+    {
+      "piece": "arm_1",
+      "touch": 1753,
+      "pick": 1770,
+      "insert": 1798,
+      "mount": 1802,
+      "hands_off": 1875,
+      "tol": 8,
+      "side": "image right"
+    },
+    {
+      "piece": "arm_2",
+      "touch": 1882,
+      "pick": 1888,
+      "insert": 1932,
+      "mount": 1932,
+      "hands_off": 2005,
+      "tol": 8,
+      "side": "image left",
+      "note": "pin pushed in by about 1950, arm rotated to its final pose by about 1970"
+    },
+    {
+      "piece": "hat",
+      "touch": 2080,
+      "pick": 2085,
+      "insert": 2172,
+      "mount": 2174,
+      "hands_off": 2250,
+      "tol": 4
+    }
   ],
   "notes": [
-    {"frames": [0, 90],      "what": "all pieces loose; base partly outside the frame until about 84"},
-    {"frames": [24, 32],     "what": "dark object (headset controller) at the bottom of the frame"},
-    {"frames": [743, 767],   "what": "hand touches the nose without lifting it"},
-    {"frames": [890, 930],   "what": "nose and moustache joined in hand (fully joined at about 930)"},
-    {"frames": [1146, 1146], "what": "hand passes over the arms without lifting them"},
-    {"frames": [1197, 1220], "what": "one ear picked and put back on the table, not mounted"},
-    {"frames": [1440, 1440], "what": "hand touches the arms without lifting them"},
-    {"frames": [2255, 2360], "what": "final pause: figure complete, no hands"},
-    {"frames": [2360, 2444], "what": "head turns to a monitor and keyboard; headset controller in hand from about 2396"}
+    {
+      "frames": [
+        0,
+        90
+      ],
+      "what": "all pieces loose; base partly outside the frame until about 84"
+    },
+    {
+      "frames": [
+        24,
+        32
+      ],
+      "what": "dark object (headset controller) at the bottom of the frame"
+    },
+    {
+      "frames": [
+        740,
+        766
+      ],
+      "what": "hand touches the nose and shifts it without lifting it"
+    },
+    {
+      "frames": [
+        880,
+        930
+      ],
+      "what": "nose threaded into the moustache in hand (first contact about 880, fully joined at about 930)"
+    },
+    {
+      "frames": [
+        1146,
+        1146
+      ],
+      "what": "hand passes over the arms without lifting them"
+    },
+    {
+      "frames": [
+        1166,
+        1250
+      ],
+      "what": "one ear touched (1166), lifted (1198) and put back on the table; the hand releases it at about 1250; not mounted"
+    },
+    {
+      "frames": [
+        1440,
+        1440
+      ],
+      "what": "hand touches the arms without lifting them"
+    },
+    {
+      "frames": [
+        2256,
+        2360
+      ],
+      "what": "final pause: figure complete, no hands"
+    },
+    {
+      "frames": [
+        2360,
+        2444
+      ],
+      "what": "head turns to a monitor and keyboard; headset controller in hand from about 2394"
+    }
   ]
 }
