@@ -14,6 +14,5 @@ outputs/
 .ipynb_checkpoints
 
 notebooks/_archive/
+configs/_archive
 archive/
-
-notebooks/*_no_outputs.ipynb
