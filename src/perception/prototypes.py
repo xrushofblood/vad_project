@@ -207,3 +207,30 @@ def class_similarities_gpu(features, prototypes, owners, n_classes=len(CLASS_NAM
     similarities = flat @ prototypes.T                                        # (patches, P)
     out = torch.stack([block.amax(dim=1) for block in similarities.split(counts.tolist(), dim=1)], dim=1)
     return out.reshape(*features.shape[:-1], n_classes).cpu().numpy()
+
+# --- Saving the V2 prototypes (every labelled patch of the support set) -------------------------
+
+def save_patch_prototypes(path, prototypes, owners, metadata, class_names=CLASS_NAMES):
+    """
+    Save the V2 prototypes: the (P, D) matrix of unit vectors returned by patch_prototypes, the class index of each
+    row (owners), the class names that give the meaning of the indices, and metadata (a JSON-serializable dict).
+    Saved as float32 without compression: the vectors are stored exactly, so a reload gives the same labels.
+    """
+    np.savez(
+        path,
+        prototypes=np.asarray(prototypes, dtype=np.float32),
+        owners=np.asarray(owners, dtype=np.int64),
+        class_names=np.array(class_names),
+        metadata=json.dumps(metadata),
+    )
+
+
+def load_patch_prototypes(path):
+    """Load a file written by save_patch_prototypes. Returns prototypes (P, D), owners (P,), class names, metadata."""
+    data = np.load(path)
+    return {
+        "prototypes": data["prototypes"],
+        "owners": data["owners"],
+        "class_names": [str(name) for name in data["class_names"]],
+        "metadata": json.loads(str(data["metadata"])),
+    }
