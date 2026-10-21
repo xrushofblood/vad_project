@@ -7,7 +7,7 @@ The goal is to monitor an assembly procedure recorded with an XR headset (egocen
 
 | Phase | Task | Status |
 |---|---|---|
-| 1. Perception | Recognize the pieces in each frame | Pipeline and five studies done (support set, resolution, multi-prototype, margin, support set on V2). Decided configuration: V2, support set of 10 frames, margin 0. Next: pipeline update and test. The study of fine details was explored and closed: the input stays at 1024
+| 1. Perception | Recognize the pieces in each frame | Pipeline updated to V2 with a support set of 10 frames and margin 0; regression check passed (mIoU 0.779 on the 32 validation frames). Studies done: support set, resolution, multi-prototype, margin, support set on V2; explorations: fine details, working distance. Next: test on assembly_1
 | 2. State tracking | Track the state of each piece (on the table, in hand, mounted) and the order of picks and mounts | Planned |
 | 3. Reasoning | Check picks and mounts against the assembly rules (`configs/dependency_graph.json`) with an LLM (Bonsai-27B): a wrong pick can be flagged before the mistake is made, a wrong mount when it happens | Planned |
 
@@ -17,7 +17,7 @@ No model is trained. C-RADIOv4-SO400M is used as a frozen feature extractor: eac
 
 Two classifiers are compared in the studies. V0 has one prototype per class, the normalized mean of its annotated patches. V2 uses every annotated patch as a prototype (nearest neighbour); the similarity of a class is the highest similarity among its prototypes.
 
-Current state. The pipeline notebook (`phase_1_perception.ipynb`) still runs V0 with 8 reference frames and margin 0.03; in its video pipeline perception runs only when the scene is still (about 400 ms per frame on the laptop GPU, almost all in C-RADIO). The studies chose V2, with a support set of 10 frames and margin 0 (`outputs/phase_1_margin_study/decision.json`). The support-set study on V2 kept this support set. The pipeline will be updated next.
+Current state. The pipeline notebook (`phase_1_perception.ipynb`) runs V2 with the support set of 10 frames and margin 0, and reproduces the support-set study on V2 on the 32 validation frames (0.779; 0.818 at the table, 0.777 at the pick, 0.731 at the mounting; 0.836 with the arms merged). It saves the V2 prototypes (`outputs/phase_1_perception/patch_prototypes.npz`, with the class of each prototype and the metadata) for the next phases. In its video pipeline perception runs only when the scene is still, about 460 ms per frame on the laptop GPU (up to about 650 ms in other executions).
 
 What the studies found:
 
@@ -28,8 +28,9 @@ What the studies found:
 - Exploratory test (`scratch_support_swap.ipynb`): with the two frames of `1_disassembled_controlled_caos` added to the support set of V2, the loose arm_2 is seen on the table before its pick in 44% of the frames instead of 12%, and the hat in 67% instead of 54%. For the loose pieces, the lever is which frames are in the support set. These frames are validation frames, so the test is optimistic.
 - Support set on V2 (`phase_1_support_set_v2_study.ipynb`): a new validation set of 32 frames of `assembly_2` (10 at the table, 11 at the pick, 11 at the mounting) was chosen by rules fixed from the event log. A decremental selection of objects among 13 candidate frames (Hart 1968, Gates 1972, García et al. 2012), judged by cross-validation with the one-standard-error rule (Hastie et al. 2009), halved the prototypes but was worse in use: mIoU over 10 pieces 0.717 against 0.779 for the current support set; a second selection protecting the largest example of each piece gave 0.744. The current support set is kept (0.818 at the table, 0.777 at the pick, 0.731 at the mounting; 0.836 with the arms merged). It recognizes arm_1 mostly through one example seen at working distance. A piece is recognized mostly through the examples of what it is confused with (the hat through the base seen from above, the arms through each other, body and arms through the hands). No support set tells the loose arms apart.
 - Fine details (`scratch_fine_details.ipynb`, exploratory): a larger input (1152, 2048) and a second look at each annotated object enlarged three times were compared on the arm and mouth frames of the validation set, with criteria written before running. None passed: the input stays at 1024. A larger input does not separate the arms and at 2048 costs about ten times more. The second look helps where a good example at working distance exists (arm_1 in hand, the mouth against the nose), not for arm_2; adding arm examples only moves the confusion from one arm to the other. A smaller patch needs a retrained model (FlexiViT), and a shifted grid gives no finer detail (FCN). The identity of similar pieces as whole objects, kept over time, is left to Phase 2.
+- Working distance (`scratch_working_distance.ipynb`, exploratory): adding to the support set every annotated example at least as large as the typical size of its piece in use (23 examples) improves most pieces (nose, hat, moustache, base; arms merged from 0.836 to 0.855) but swaps the arms again (arm_1 from 0.741 to 0.363), so the mIoU over 10 pieces falls from 0.779 to 0.759. Without the two mouth frames the mIoU falls to 0.754 and the mouth from 0.662 to 0.514, so they are kept. The current support set is kept; the rule is a recommendation for a new assembly.
 
-Known limits of V2 with the current support set, from the support-set study on V2: the two loose arms are not told apart (both take the label arm_1; arm_2 is weak, IoU 0.380 on the validation frames), while mounted arms are on the right side; the hat held in the hand is partly taken for body; the loose mouth seen from the side, whose peg is predicted as nose; a few hat patches in the cavity of the base; objects never annotated (the headset controller) taken for pieces. Mounted pieces and the complete figure are recognized.
+Known limits of V2 with the current support set (pipeline, Section 10): the two loose arms are confused (arm_2 is the weakest piece, IoU 0.380), and an arm just picked is often not seen; the loose mouth is half taken for nose, and the mouth covers only about 3.5 patches in use; the empty slots of nose and moustache may be taken for mouth (hypothesis); objects never seen in the recordings are taken for pieces, since there is no "unknown" answer. The empty mouth slot is predicted as body. Mounted pieces, the complete figure and the hands are recognized.
 
 Evaluation protocol. Frames are split by recording: reference frames come from sequences never used for evaluation. Validation is 32 annotated frames of `assembly_2`, chosen by rules from the event log (support-set study on V2, Section 3); `1_disassembled_controlled_caos` is now a reference sequence. After the support-set study on V2 the validation frames are a development set: they were used after its decision, so their values are optimistic. Test (`assembly_1`) is held out until the end of Phase 1; it was inspected once, in the qualitative evaluation of `v1-baseline`. Of `assembly_1`, only frame f0073 is annotated. No study notebook reads test frames.
 The v1-baseline file outputs/baseline/test_similarities_v1-baseline.npz also contains the test frames from that inspection; the support-set study loads only its validation entries.
@@ -50,7 +51,7 @@ vad-project/
 │   ├── c_radio_weights/            # C-RADIOv4-SO400M (weights and model code, Hugging Face)
 │   └── bonsai_27b_1bit/            # Bonsai-27B, 1-bit quantized (reasoning phase)
 ├── notebooks/
-│   ├── phase_1_perception.ipynb              # Phase 1 pipeline (V0, margin 0.03; to be updated)
+│   ├── phase_1_perception.ipynb              # Phase 1 pipeline: V2, support set of 10 frames, margin 0
 │   ├── phase_1_support_set_study.ipynb       # Which and how many reference frames (V0)
 │   ├── phase_1_resolution_study.ipynb        # Input resolution: 1024 vs 512
 │   ├── phase_1_multi_prototype_study.ipynb   # V0, V1, V2 on a support set of 10 frames
@@ -58,6 +59,7 @@ vad-project/
 │   ├── phase_1_support_set_v2_study.ipynb    # Support set of V2: new validation set, selection of objects, decision
 │   ├── scratch_support_swap.ipynb            # Exploratory: two more frames in the support set of V2
 │   ├── scratch_fine_details.ipynb            # Exploratory: larger input and second look on the arms and the mouth
+│   ├── scratch_working_distance.ipynb        # Exploratory: examples at working distance; the two mouth frames
 │   └── _archive/                             # Not tracked
 ├── outputs/                                  # Not tracked: prototypes, similarities, figures, videos
 │   ├── phase_1_perception/
@@ -74,7 +76,7 @@ vad-project/
 │   │   ├── classes.py                        # Class list, indices and colors
 │   │   ├── features.py                       # C-RADIOv4 feature extraction (optional input resolution)
 │   │   ├── labels.py                         # labelme polygons -> patch labels
-│   │   ├── prototypes.py                     # Prototypes (mean, per aspect, per patch), background margin, CPU and GPU similarities
+│   │   ├── prototypes.py                     # Prototypes (mean, per aspect, per patch), background margin, CPU and GPU similarities, saving of the V2 prototypes similarities
 │   │   ├── metrics.py                        # Confusion matrix, per-class IoU, mIoU, boundary ring, arms merged, bootstrap
 │   │   └── visualization.py                  # Label maps and overlays
 │   └── utils/
@@ -99,7 +101,7 @@ pip install -r requirements.txt
 
 `requirements.txt` installs PyTorch with CUDA 12.1 from the PyTorch package index (first line of the file). pywinpty is installed only on Windows.
 
-V2 runs on the GPU (`class_similarities_gpu`), in about 70 to 95 ms per frame depending on the support set, but only when the GPU memory is free: with other notebooks or kernels open, Windows moves data to system memory and V2 slows down to several seconds per frame.
+V2 runs on the GPU (`class_similarities_gpu`), in about 80 ms per frame with the current support set (up to about 120 ms in some executions), but only when the GPU memory is free: with other notebooks or kernels open, Windows moves data to system memory and V2 slows down to several seconds per frame.
 
 ### Models
 
@@ -118,7 +120,7 @@ python src/utils/extract_frames.py
 
 The script reads every `.mp4` in `data/raw_videos/` and saves **one frame per second** in `data/extracted_frames/`, named `<video>_f<index>.jpg`. The script keeps one frame every round(fps) frames, so at 30 fps `<video>_f<index>.jpg` is frame index × 30 of the video, at about second `index` (e.g. `assembly_1_f0016.jpg` is frame 480, at about 16 s). Videos whose frames already exist are skipped. The prefix before `_f` identifies the recording, which is what the notebooks use to split reference, validation and test frames by sequence.
 
-`frame_1.jpeg` is an independent frame taken with an iPhone (wide angle), used only as a qualitative check of generalization to a different camera (pipeline, Section 10.4; multi-prototype study, Section 6.3).
+`frame_1.jpeg` is an independent frame taken with an iPhone (wide angle), used only as a qualitative check of generalization to a different camera (pipeline, Section 10.5; multi-prototype study, Section 6.3).
 
 Reference and validation frames are annotated with [labelme](https://github.com/wkentaro/labelme); the `.json` annotations are saved next to the frames.
 
@@ -126,7 +128,7 @@ Reference and validation frames are annotated with [labelme](https://github.com/
 
 Every notebook is run with Restart & Run All, reads data from `data/` and the model from `models/`, and writes to its own folder in `outputs/`. No notebook reads test frames.
 
-- `phase_1_perception.ipynb`: builds the prototypes, classifies the validation frames, and writes prototypes, similarities, figures and the annotated video to `outputs/phase_1_perception/`.
+- `phase_1_perception.ipynb`: the Phase 1 pipeline with the configuration chosen by the studies (V2, 10 frames, margin 0). Builds and saves the V2 prototypes, evaluates the 32 validation frames with a regression check against the support-set study on V2, and writes similarities, figures and the annotated video of `assembly_2` to `outputs/phase_1_perception/`.
 - `phase_1_support_set_study.ipynb`: selection of the reference frames for V0. Section 7 adds diagnostic analyses of the selected support set; they do not change the selection.
 - `phase_1_resolution_study.ipynb`: 1024 and 512 on the validation frames (recognition and latency); 1024 is kept.
 - `phase_1_multi_prototype_study.ipynb`: V0, V1 and V2 on the support set of 10 frames. The Addendum runs continuous perception on `assembly_2` (exploratory).
@@ -134,6 +136,7 @@ Every notebook is run with Restart & Run All, reads data from `data/` and the mo
 - `phase_1_support_set_v2_study.ipynb`: builds the new validation set, selects objects among 13 candidate frames by cross-validation, chooses their margin, and applies a decision rule on the validation frames; the current support set is kept. Section 10 runs continuous perception on `assembly_2` (about 25 minutes with a free GPU) and measures the influence of each example on each piece (exploratory).
 - `scratch_support_swap.ipynb`: exploratory test outside any study, V2 with the two frames of `1_disassembled_controlled_caos` added to the support set.
 - `scratch_fine_details.ipynb`: exploratory test outside any study, input size and second look on the frames of the arms and of the mouth.
+- `scratch_working_distance.ipynb`: exploratory test outside any study, examples at working distance added to the support set, and the support set without the two mouth frames.
 
 `src/utils/continuous_analysis.py` can also be run on its own on saved labels (see its docstring). Its windows and thresholds are provisional.
 
@@ -148,11 +151,11 @@ Every notebook is run with Restart & Run All, reads data from `data/` and the mo
 - `v1.6-margin`: background margin studied for V0 and V2; V2 with margin 0 decided. `assign_labels` accepts negative margins (labels unchanged for margins of zero or above, checked). Event log of `assembly_2` and `src/utils/continuous_analysis.py` added. Exploratory test on the support set of V2.
 - `v1.7-support-set-v2`: new validation set of 32 frames of `assembly_2`; support set of V2 studied by decremental selection of objects; the current support set of 10 frames is kept. Event log revised (touch and insert added). Annotation of `caos_f0211` completed, with the old one archived; new annotated frame `caos_f0278`.
 - `v1.8-fine-details`: fine details explored (larger input, second look on annotated objects); none passed the criteria written before running, the input stays at 1024. No change to `src/perception/`.
+- `v1.9-pipeline`: pipeline updated to V2 with the support set of 10 frames and margin 0, on the 32 validation frames, with a regression check against the support-set study on V2. Saving and loading of the V2 prototypes added to `src/perception/prototypes.py` (new functions only). Exploration of working distance.
 
 ## Next steps
 
-- Update the pipeline to V2 with the current support set and margin 0, with a regression check against the support-set study on V2 (0.779 on the 32 validation frames).
-- Final evaluation on the test sequence (`assembly_1`), once, at the end of Phase 1. Only one test frame is annotated, so the test needs annotated frames first.
-- Phase 2: from the per-patch similarities to objects with one identity each, kept over time (a piece does not change identity, only state), and state tracking of each piece (on the table, in hand, mounted), with measures over time around the events of the log (Ward et al. 2011).
+- Final evaluation on the test sequence (`assembly_1`), once. Only frame f0073 is annotated, so the test needs annotated frames first, chosen by the same rules as the validation frames (event log of `assembly_1`).
+- Phase 2: from the per-patch labels to objects with one identity each, kept over time (a piece does not change identity, only state); state tracking of each piece (on the table, in hand, mounted) and the order of picks and mounts, measured in windows around the events of the log (Ward et al. 2011). Phase 2 is also where the identity of the arms, the hidden mouth and unfamiliar objects can be checked against the history of each piece.
 
 Open questions: several nearest neighbours (k > 1) instead of one; objects never seen (open set); recordings with errors for Phase 2 (possibly with an iPhone held at eye level); grouping patches into objects (e.g. class-agnostic masks); at least one example at working distance for each piece in the support set.
