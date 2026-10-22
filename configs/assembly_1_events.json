@@ -12,7 +12,7 @@
     {"piece": "ear",       "touch": 1434, "pick": 1442, "insert": 1536, "mount": 1552, "hands_off": 1574, "tol": 6, "side": "image left", "note": "passed from one hand to the other at about 1516-1520"},
     {"piece": "arm_1",     "touch": 1644, "pick": 1664, "insert": 1696, "mount": 1760, "hands_off": 1781, "tol": 8, "side": "image right", "note": "open hand"},
     {"piece": "arm_2",     "touch": 1782, "pick": 1796, "insert": 1840, "mount": 1860, "hands_off": 1884, "tol": 10, "side": "image left", "note": "closed hand"},
-    {"piece": "hat",       "touch": 1993, "pick": 2001, "insert": 2044, "mount": 2052, "hands_off": 2136, "tol": 6}
+    {"piece": "hat", "touch": 1993, "pick": 2001, "insert": 2037, "mount": 2052, "hands_off": 2136, "tol": 4, "note": "first contact hidden by the peg on top of the head; present at f0068 (2040)"}
   ],
   "notes": [
     {"frames": [18, 36],     "what": "dark object (headset controller) at the bottom of the frame"},
