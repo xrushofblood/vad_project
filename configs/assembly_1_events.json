@@ -8,7 +8,7 @@
     {"piece": "moustache", "touch": 796,  "pick": 806,  "insert": 980,  "mount": 1010, "hands_off": 1044, "tol": 4, "note": "joined to the nose in hand"},
     {"piece": "nose",      "touch": 850,  "pick": 856,  "insert": 980,  "mount": 1010, "hands_off": 1044, "tol": 6, "note": "joined to the moustache in hand"},
     {"piece": "eyes",      "touch": 1156, "pick": 1162, "insert": 1184, "mount": 1194, "hands_off": 1234, "tol": 4},
-    {"piece": "ear",       "touch": 1338, "pick": 1346, "insert": 1378, "mount": 1402, "hands_off": 1428, "tol": 6, "side": "image right"},
+    {"piece": "ear",       "touch": 1338, "pick": 1346, "insert": 1391, "mount": 1402, "hands_off": 1428, "tol": 11, "side": "image right", "note": "first contact judged on the extracted frames and the video: not yet at f0046 (1380), present by 1402"},
     {"piece": "ear",       "touch": 1434, "pick": 1442, "insert": 1536, "mount": 1552, "hands_off": 1574, "tol": 6, "side": "image left", "note": "passed from one hand to the other at about 1516-1520"},
     {"piece": "arm_1",     "touch": 1644, "pick": 1664, "insert": 1696, "mount": 1760, "hands_off": 1781, "tol": 8, "side": "image right", "note": "open hand"},
     {"piece": "arm_2",     "touch": 1782, "pick": 1796, "insert": 1840, "mount": 1860, "hands_off": 1884, "tol": 10, "side": "image left", "note": "closed hand"},
