@@ -1,0 +1,24 @@
+{
+  "video": "assembly_1",
+  "annotation": "Annotated on the raw video, before any perception output of the final method on this video was seen (the video was inspected once, qualitatively, in v1-baseline). Event times proposed by Claude from contact sheets and frame-by-frame crops of the raw video, then checked event by event by the author. The video has 2348 frames at about 30 fps; extracted frame fNNNN is video frame 30 * NNNN (f0000 to f0078). Definitions as in configs/assembly_2_events.json: touch = first frame the hand touches the piece, in the contact that ends with the piece lifted; pick = first frame the piece leaves the table; insert = first frame the piece touches the part it is mounted on (for the base: first frame it rests at the work position); hands_off = hands leave the figure; tol = estimate of the ambiguity of the events, in frames. mount = the piece reaches its final position (seated or pushed in); it is informative only and not used to choose frames. touch and pick are null when they happen outside the frame; first_seen is then the first frame the piece is visible in hand. Sides are in image coordinates.",
+  "events": [
+    {"piece": "base",      "touch": null, "pick": null, "first_seen": 112, "insert": 138, "mount": 138, "hands_off": 164, "tol": 8, "note": "touch and pick outside the frame; placed at the work position"},
+    {"piece": "body",      "touch": null, "pick": null, "first_seen": 304, "insert": 345, "mount": 345, "hands_off": 400, "tol": 15, "note": "touch and pick outside the frame; placed on the base; contact judged on the extracted frames: not yet at f0011 (330), present at f0012 (360)"},
+    {"piece": "mouth",     "touch": null, "pick": null, "first_seen": 538, "insert": 556, "mount": 580, "hands_off": 680, "tol": 6, "note": "touch and pick outside the frame"},
+    {"piece": "moustache", "touch": 796,  "pick": 806,  "insert": 980,  "mount": 1010, "hands_off": 1044, "tol": 4, "note": "joined to the nose in hand"},
+    {"piece": "nose",      "touch": 850,  "pick": 856,  "insert": 980,  "mount": 1010, "hands_off": 1044, "tol": 6, "note": "joined to the moustache in hand"},
+    {"piece": "eyes",      "touch": 1156, "pick": 1162, "insert": 1184, "mount": 1194, "hands_off": 1234, "tol": 4},
+    {"piece": "ear",       "touch": 1338, "pick": 1346, "insert": 1378, "mount": 1402, "hands_off": 1428, "tol": 6, "side": "image right"},
+    {"piece": "ear",       "touch": 1434, "pick": 1442, "insert": 1536, "mount": 1552, "hands_off": 1574, "tol": 6, "side": "image left", "note": "passed from one hand to the other at about 1516-1520"},
+    {"piece": "arm_1",     "touch": 1644, "pick": 1664, "insert": 1696, "mount": 1760, "hands_off": 1781, "tol": 8, "side": "image right", "note": "open hand"},
+    {"piece": "arm_2",     "touch": 1782, "pick": 1796, "insert": 1840, "mount": 1860, "hands_off": 1884, "tol": 10, "side": "image left", "note": "closed hand"},
+    {"piece": "hat",       "touch": 1993, "pick": 2001, "insert": 2044, "mount": 2052, "hands_off": 2136, "tol": 6}
+  ],
+  "notes": [
+    {"frames": [18, 36],     "what": "dark object (headset controller) at the bottom of the frame"},
+    {"frames": [902, 958],   "what": "nose threaded into the moustache in hand (first contact about 902, fully joined at about 958)"},
+    {"frames": [2092, 2124], "what": "hat released at 2092 and pressed again from 2100 to 2124"},
+    {"frames": [2137, 2233], "what": "final pause: figure complete, no hands"},
+    {"frames": [2234, 2347], "what": "head turns to a monitor and keyboard; headset controller in hand from about 2248 to 2264; from about 2280 the figure is seen from another viewpoint"}
+  ]
+}
