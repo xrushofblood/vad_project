@@ -5,7 +5,13 @@ __pycache__/
 *.py[cod]
 
 # Project specific folders (Do NOT track heavy files)
-data/
+data/*
+!data/extracted_frames/
+data/extracted_frames/*
+!data/extracted_frames/*.json
+models/
+logs/
+outputs/
 models/
 logs/
 outputs/
