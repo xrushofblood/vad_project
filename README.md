@@ -9,7 +9,7 @@ The goal is to monitor an assembly procedure recorded with an XR headset (egocen
 |---|---|---|
 | 1. Perception | Recognize the pieces in each frame | Done. V2 with a support set of 10 frames (A) and margin 0. Test on `assembly_1`, run once: mIoU over 10 pieces 0.765 (95% interval 0.719-0.796), against 0.779 in validation. A support set grown by condensation (G) was studied and not adopted |
 | 2. State tracking | Track the state of each piece (on the table, in hand, mounted) and the order of picks and mounts; its output is what the LLM reads | Next |
-| 3. Reasoning | Check picks and mounts against the assembly rules (`configs/dependency_graph.json`) with an LLM (Bonsai-27B): a wrong pick can be flagged before the mistake is made, a wrong mount when it happens | Planned |
+| 3. Reasoning | Check picks and mounts against the assembly rules (a dependency graph, `configs/dependency_graph.json`, still to be built) with an LLM (Bonsai-27B): a wrong pick can be flagged before the mistake is made, a wrong mount when it happens | Planned |
 
 ### Phase 1 — Perception
 
