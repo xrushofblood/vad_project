@@ -9,6 +9,7 @@ data/*
 !data/extracted_frames/
 data/extracted_frames/*
 !data/extracted_frames/*.json
+data/extracted_frames/iphone_arms_*.json
 models/
 logs/
 outputs/
