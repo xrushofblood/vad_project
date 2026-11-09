@@ -20,5 +20,11 @@
     {"frames": [2092, 2124], "what": "hat released at 2092 and pressed again from 2100 to 2124"},
     {"frames": [2137, 2233], "what": "final pause: figure complete, no hands"},
     {"frames": [2234, 2347], "what": "head turns to a monitor and keyboard; headset controller in hand from about 2248 to 2264; from about 2280 the figure is seen from another viewpoint"}
+  ],
+  "extra_events": [
+    {"type": "mount", "piece": "moustache", "parent": "nose", "t": 902, "source": "note 902-958"}
+  ],
+  "negatives": [
+    {"frames": [2092, 2124], "pieces": ["hat"], "no": "remove", "source": "note 2092-2124"}
   ]
 }

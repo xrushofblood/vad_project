@@ -176,5 +176,15 @@
       ],
       "what": "head turns to a monitor and keyboard; headset controller in hand from about 2394"
     }
+  ],
+  "extra_events": [
+    {"type": "mount", "piece": "moustache", "parent": "nose", "t": 880, "source": "note 880-930"},
+    {"type": "pick", "piece": "ear", "t": 1198, "source": "note 1166-1250"},
+    {"type": "put_down", "piece": "ear", "t": 1250, "source": "note 1166-1250"}
+  ],
+  "negatives": [
+    {"frames": [740, 766], "pieces": ["nose"], "no": "pick", "source": "note 740-766"},
+    {"frames": [1146, 1146], "pieces": ["arm_1", "arm_2"], "no": "pick", "source": "note 1146"},
+    {"frames": [1440, 1440], "pieces": ["arm_1", "arm_2"], "no": "pick", "source": "note 1440"}
   ]
 }
