@@ -1,0 +1,10 @@
+SNAPSHOT at frame 1030
+State: base placed | body mounted on base | mouth mounted on body |
+nose mounted on body | moustache mounted on nose |
+eyes, ear, ear, arm_1, arm_2, hat on table
+New events since frame 640:
+- pick moustache t=787 (observed, certain)
+- pick nose t=849 (observed, certain)
+- mount moustache on nose t=880 (observed, certain)
+- mount nose on body t=987, decided 1030 (observed, certain)
+Fast-check alerts: none
