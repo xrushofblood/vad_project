@@ -1,0 +1,11 @@
+RULES
+R1  Inventory: base x1, body x1, eyes x1, nose x1, moustache x1, mouth x1, ear x2, arm_1 x1, arm_2 x1, hat x1.
+R2  base is the root: it is placed at the work position.
+R3  body attaches to base.
+R4  eyes, nose, mouth, ear, arm_1, arm_2, hat attach to body.
+R5  moustache attaches to nose.
+R6  Mounting body requires base placed (procedure).
+R7  Mounting any piece on body requires body mounted (procedure).
+R8  Mounting nose on body requires mouth mounted first (physical).
+R9  Mounting nose on body requires moustache mounted on nose first (physical).
+R10 Mounting arm_1 requires the ear on the right of body mounted first (physical).

@@ -1,0 +1,51 @@
+{
+  "rules_file": "rules_nohint.txt",
+  "snapshot_ok": {
+    "wall_s": 2.63,
+    "timings": {
+      "cache_n": 0,
+      "prompt_n": 460,
+      "prompt_ms": 1139.736,
+      "prompt_per_token_ms": 2.4776869565217394,
+      "prompt_per_second": 403.6022377111892,
+      "predicted_n": 61,
+      "predicted_ms": 1479.727,
+      "predicted_per_token_ms": 24.66211666666667,
+      "predicted_per_second": 40.54802000639307
+    },
+    "answer": "VERDICT: OK\nRULES: R1, R2, R3, R4, R5, R6, R7, R8, R9\nEXPLANATION: All required pieces are mounted in the correct order according to the rules.\nFIX: none",
+    "reasoning": ""
+  },
+  "snapshot_error": {
+    "wall_s": 1.7,
+    "timings": {
+      "cache_n": 303,
+      "prompt_n": 167,
+      "prompt_ms": 489.715,
+      "prompt_per_token_ms": 2.932425149700599,
+      "prompt_per_second": 341.01467179890346,
+      "predicted_n": 50,
+      "predicted_ms": 1202.129,
+      "predicted_per_token_ms": 24.533244897959182,
+      "predicted_per_second": 40.76101649656568
+    },
+    "answer": "VERDICT: ANOMALY\nRULES: R8\nEXPLANATION: Mounting nose on body requires mouth mounted first, but mouth is still on the table.\nFIX: mount mouth on body before mounting nose",
+    "reasoning": ""
+  },
+  "snapshot_error_noalert": {
+    "wall_s": 2.02,
+    "timings": {
+      "cache_n": 303,
+      "prompt_n": 154,
+      "prompt_ms": 456.665,
+      "prompt_per_token_ms": 2.965357142857143,
+      "prompt_per_second": 337.22750812959174,
+      "predicted_n": 65,
+      "predicted_ms": 1549.232,
+      "predicted_per_token_ms": 24.20675,
+      "predicted_per_second": 41.31079141148647
+    },
+    "answer": "VERDICT: OK\nRULES: R1, R2, R3, R4, R5, R6, R7, R8, R9, R10\nEXPLANATION: All required pieces are mounted in the correct order according to the rules.\nFIX: none",
+    "reasoning": ""
+  }
+}

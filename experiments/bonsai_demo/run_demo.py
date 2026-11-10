@@ -1,8 +1,9 @@
 """Send the two snapshots to a running llama-server and report answers and timings.
 
-Usage: python run_demo.py <label> [snapshot names, comma-separated]
+Usage: python run_demo.py <label> [snapshot names, comma-separated or "all"] [rules file]
 The label (e.g. "thinking_off" or "thinking_on") is only written in the output file
-name; thinking is set when the server starts. Without names, all snapshots are sent.
+name; thinking is set when the server starts. Without names (or with "all"), all
+snapshots are sent. The rules file defaults to rules.txt.
 Each run is saved in a new file with date and time, so no result is overwritten.
 """
 import json
@@ -15,12 +16,13 @@ HERE = Path(__file__).parent
 URL = "http://127.0.0.1:8080/v1/chat/completions"
 LABEL = sys.argv[1] if len(sys.argv) > 1 else "run"
 ALL_SNAPSHOTS = ["snapshot_ok", "snapshot_error", "snapshot_error_noalert"]
-SNAPSHOTS = sys.argv[2].split(",") if len(sys.argv) > 2 else ALL_SNAPSHOTS
+SNAPSHOTS = sys.argv[2].split(",") if len(sys.argv) > 2 and sys.argv[2] != "all" else ALL_SNAPSHOTS
+RULES_FILE = sys.argv[3] if len(sys.argv) > 3 else "rules.txt"
 
 # Instruction and rules form a fixed prefix, so the server can reuse it (prompt cache).
-system_text = (HERE / "instruction.txt").read_text() + "\n" + (HERE / "rules.txt").read_text()
+system_text = (HERE / "instruction.txt").read_text() + "\n" + (HERE / RULES_FILE).read_text()
 
-results = {}
+results = {"rules_file": RULES_FILE}
 for name in SNAPSHOTS:
     body = {
         "messages": [
@@ -43,7 +45,7 @@ for name in SNAPSHOTS:
                      "answer": message.get("content", ""),
                      "reasoning": message.get("reasoning_content", "")}
 
-    print(f"===== {name} ({LABEL}) =====")
+    print(f"===== {name} ({LABEL}, {RULES_FILE}) =====")
     print(f"wall time: {wall_s:.2f} s")
     for key in ["cache_n", "prompt_n", "prompt_ms", "predicted_n", "predicted_ms"]:
         if key in timings:
