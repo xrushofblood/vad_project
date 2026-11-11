@@ -22,6 +22,7 @@
   "positions_status": "to be validated",
   "positions_view": "front: face visible",
   "positions": [
+    ["body", "above", "base"],
     ["hat", "above", "eyes"],
     ["eyes", "above", "nose"],
     ["moustache", "above", "mouth"],
