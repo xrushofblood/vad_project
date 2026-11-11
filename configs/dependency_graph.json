@@ -1,0 +1,48 @@
+{
+  "assembly": "mr_potato_head",
+  "status": "draft",
+  "notes": [
+    "Part names must match the perception class names (src/perception/classes.py).",
+    "Copies of the same part are interchangeable (ear x2).",
+    "Positions are optional (level 3): checked only when the face is visible; right/left as seen by the operator looking at the face.",
+    "Prerequisites: 'physical' = otherwise the part does not fit or blocks a later step; 'procedural' = order chosen by the procedure."
+  ],
+  "parts": {
+    "base":      {"count": 1, "parent": null},
+    "body":      {"count": 1, "parent": "base"},
+    "eyes":      {"count": 1, "parent": "body"},
+    "nose":      {"count": 1, "parent": "body"},
+    "moustache": {"count": 1, "parent": "nose"},
+    "mouth":     {"count": 1, "parent": "body"},
+    "ear":       {"count": 2, "parent": "body"},
+    "arm_1":     {"count": 1, "parent": "body"},
+    "arm_2":     {"count": 1, "parent": "body"},
+    "hat":       {"count": 1, "parent": "body"}
+  },
+  "positions_status": "to be validated",
+  "positions_view": "front: face visible",
+  "positions": [
+    ["hat", "above", "eyes"],
+    ["eyes", "above", "nose"],
+    ["moustache", "above", "mouth"],
+    ["ear", "above", "arm_1"],
+    ["ear", "above", "arm_2"],
+    ["arm_1", "right_of", "body"],
+    ["arm_2", "left_of", "body"],
+    ["ear", "right_of", "body"],
+    ["ear", "left_of", "body"]
+  ],
+  "requires": [
+    {"mount": "body",  "needs": ["base"], "kind": "procedural"},
+    {"mount": "eyes",  "needs": ["body"], "kind": "procedural"},
+    {"mount": "nose",  "needs": ["body"], "kind": "procedural"},
+    {"mount": "mouth", "needs": ["body"], "kind": "procedural"},
+    {"mount": "ear",   "needs": ["body"], "kind": "procedural"},
+    {"mount": "arm_1", "needs": ["body"], "kind": "procedural"},
+    {"mount": "arm_2", "needs": ["body"], "kind": "procedural"},
+    {"mount": "hat",   "needs": ["body"], "kind": "procedural"},
+    {"mount": "nose",  "needs": ["mouth"], "kind": "physical"},
+    {"mount": "nose",  "needs": [{"part": "moustache", "on": "nose"}], "kind": "physical"},
+    {"mount": "arm_1", "needs": [{"part": "ear", "where": ["right_of", "body"]}], "kind": "physical"}
+  ]
+}
