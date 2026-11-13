@@ -19,7 +19,7 @@
     "arm_2":     {"count": 1, "parent": "body"},
     "hat":       {"count": 1, "parent": "body"}
   },
-  "positions_status": "to be validated",
+  "positions_status": "kept: few false alarms on assembly_2 when the regions are right; detection of misplaced parts not tested yet",
   "front_reference": ["eyes", "nose", "mouth", "moustache"],
   "positions": [
     ["body", "above", "base"],
