@@ -171,16 +171,14 @@ Every notebook is run with Restart & Run All, reads data from `data/` and the mo
 - `v1.9-pipeline`: pipeline updated to V2 with the support set of 10 frames and margin 0, on the 32 validation frames, with a regression check against the support-set study on V2. Saving and loading of the V2 prototypes added to `src/perception/prototypes.py` (new functions only). Exploration of working distance.
 - `v1.10-test`: test on `assembly_1`, run once (mIoU 0.765, 95% interval 0.719-0.796); event log of `assembly_1`; labelme annotations tracked by git; video of `assembly_1` frame by frame; conclusions of Phase 1.
 - `v1.11-support-set-hart`: support set by condensation (Hart, Gates) studied on `assembly_2`, judged on `assembly_1` and blind on a phone recording; A kept, G saved as a candidate. Exploration of a new scene with a phone. No change to `src/perception/`.
+- `v2.0-tracking-paused` (branch `phase-2-state-tracking`, not merged): Phase 2 started on `assembly_2` in `notebooks/phase_2/phase_2_state_tracking.ipynb`. Regions and movement between frames measured, one track per part from the dependency graph, lost tracks found again, head motion compensated (errors on the 32 annotated frames: 107, then 52, then 39). Paused on 18 November 2026 to test the Phase 1 pipeline on IndustReal first.
 
 ## Next steps
 
-Phase 2 is planned from the literature before any code (O-VAD, PREGO, Follow the Rules, VERA, in the project files):
+Order decided on 18 November 2026: IndustReal first, then Mr Potato Head, then the company dataset.
 
-- What Phase 2 must output: the state of each piece (on the table, in hand, mounted) and the order of picks and mounts, in words, in a form the LLM of Phase 3 can check every two or three steps.
-- How to follow the pieces over time: from the per-patch labels to objects with one identity each, kept over time (a piece does not change identity, only state). Phase 2 is where the identity of the arms, the hidden mouth and unfamiliar objects can be checked against the history of each piece, and against the procedure itself.
-- When to run perception: C-RADIO only when it is needed (for instance when the scene changes), measured rather than assumed.
-- How to evaluate it: in windows around the events of the log (Ward et al. 2011).
-- A realistic calendar until the graduation in March 2027.
-- Then the anomalies to record and the dependency graph the LLM checks against.
+- IndustReal (Schoonbeek et al. 2024, RGB only, about 5 GB): test the Phase 1 pipeline, with C-RADIO frozen and a support set chosen for its parts. If perception holds, the tracking of Phase 2 is tried on it as it stands.
+- Mr Potato Head: Phase 2 resumes from `v2.0-tracking-paused`, with the state of the parts and the events, and the thresholds chosen with the events.
+- Company dataset: permissions are expected in about two weeks, and building it takes one to one and a half months, so it comes last. IndustReal also serves to plan how to build it and how to record new Mr Potato Head videos comparable to it.
 
 Open questions: several nearest neighbours (k > 1) instead of one; objects never seen (open set); background examples for a new scene; grouping patches into objects (e.g. class-agnostic masks); G instead of A if the identity of the arms limits Phase 2.
