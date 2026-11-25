@@ -10,6 +10,16 @@ data/*
 data/extracted_frames/*
 !data/extracted_frames/*.json
 data/extracted_frames/iphone_arms_*.json
+!data/industreal/
+data/industreal/*
+!data/industreal/eval_frames/
+data/industreal/eval_frames/*
+!data/industreal/eval_frames/val/
+!data/industreal/eval_frames/test/
+data/industreal/eval_frames/val/*
+data/industreal/eval_frames/test/*
+!data/industreal/eval_frames/val/*.json
+!data/industreal/eval_frames/test/*.json
 models/
 logs/
 outputs/
