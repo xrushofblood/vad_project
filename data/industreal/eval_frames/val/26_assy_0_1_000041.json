@@ -8470,7 +8470,7 @@
           714.0001831054688
         ]
       ],
-      "group_id": 1,
+      "group_id": null,
       "description": "",
       "shape_type": "polygon",
       "flags": {},
@@ -8520,7 +8520,7 @@
           578.4998168945312
         ]
       ],
-      "group_id": 1,
+      "group_id": null,
       "description": "",
       "shape_type": "polygon",
       "flags": {},
@@ -9002,7 +9002,7 @@
           717.0001831054688
         ]
       ],
-      "group_id": 1,
+      "group_id": null,
       "description": "",
       "shape_type": "polygon",
       "flags": {},

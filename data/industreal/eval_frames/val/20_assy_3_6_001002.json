@@ -594,7 +594,7 @@
           445.0001525878906
         ]
       ],
-      "group_id": 1,
+      "group_id": null,
       "description": "",
       "shape_type": "polygon",
       "flags": {},
@@ -748,7 +748,7 @@
           424.9998474121094
         ]
       ],
-      "group_id": 1,
+      "group_id": null,
       "description": "",
       "shape_type": "polygon",
       "flags": {},
@@ -1414,7 +1414,7 @@
           718.0001831054688
         ]
       ],
-      "group_id": 1,
+      "group_id": null,
       "description": "",
       "shape_type": "polygon",
       "flags": {},
@@ -7344,7 +7344,7 @@
           402.50018310546875
         ]
       ],
-      "group_id": 2,
+      "group_id": null,
       "description": "",
       "shape_type": "polygon",
       "flags": {},
